@@ -108,17 +108,15 @@ export const load = (async ({ params, fetch }) => {
 
 		const supportBuildKeyMatch = supportText.match(/BUILD KEY: ([a-z0-9]+)/i)
 		const supportBuildKey = supportBuildKeyMatch ? supportBuildKeyMatch[1] : null
-		const buildResponse = await fetch(
-			`https://build.betaflight.com/api/builds/${supportBuildKey}/json`
-		)
 		let build = null
-		if (buildResponse.ok) {
-			build = await buildResponse.json()
-		} else {
-			return error(400, {
-				message:
-					"The data in this Support ID is missing a valid Cloud Build Key. Likely from a locally built firmware."
-			})
+
+		if (supportBuildKey) {
+			const buildResponse = await fetch(
+				`https://build.betaflight.com/api/builds/${supportBuildKey}/json`
+			)
+			if (buildResponse.ok) {
+				build = await buildResponse.json()
+			}
 		}
 
 		const status = extractStatus(supportText)
@@ -219,13 +217,15 @@ export const load = (async ({ params, fetch }) => {
 		}
 
 		// Add the support ID to the previous IDs store
-		addPreviousId(
-			key,
-			build.config,
-			build.request,
-			problem,
-			(status?.["Arming disable flags"] as string)?.split(" ") ?? []
-		)
+		if (build) {
+			addPreviousId(
+				key,
+				build.config,
+				build.request,
+				problem,
+				(status?.["Arming disable flags"] as string)?.split(" ") ?? []
+			)
+		}
 
 		// Detect problems based on the extracted data
 		const detectedProblems = detectProblems({
