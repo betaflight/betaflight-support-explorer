@@ -144,31 +144,33 @@
 									{/if}
 								</div>
 							</div>
-							<hr class="hr border-surface-500 my-4 border-t-2" />
-							<div class="flex justify-between items-center">
-								<div>
-									<div class="flex flex-row">
-										<span class="text-neutral-400 mr-1 text-base">Release:</span>
-										<span class="text-base">{request.release}</span>
-									</div>
-									{#if request.tag}
+							{#if request}
+								<hr class="hr border-surface-500 my-4 border-t-2" />
+								<div class="flex justify-between items-center">
+									<div>
 										<div class="flex flex-row">
-											<span class="text-neutral-400 mr-1 text-base">Tag:</span>
-											<span class="text-base">{request.tag}</span>
+											<span class="text-neutral-400 mr-1 text-base">Release:</span>
+											<span class="text-base">{request.release}</span>
 										</div>
+										{#if request.tag}
+											<div class="flex flex-row">
+												<span class="text-neutral-400 mr-1 text-base">Tag:</span>
+												<span class="text-base">{request.tag}</span>
+											</div>
+										{/if}
+									</div>
+									{#if !build.isLocal}
+										<a
+											href="https://github.com/betaflight/betaflight/releases/tag/{request.release}"
+											target="_blank"
+											class="btn preset-filled-secondary-500 btn-sm"
+										>
+											<span><Icon src={BookOpen} size="1rem" /></span>
+											<span>Changelog</span>
+										</a>
 									{/if}
 								</div>
-								{#if !build.isLocal}
-									<a
-										href="https://github.com/betaflight/betaflight/releases/tag/{request.release}"
-										target="_blank"
-										class="btn preset-filled-secondary-500 btn-sm"
-									>
-										<span><Icon src={BookOpen} size="1rem" /></span>
-										<span>Changelog</span>
-									</a>
-								{/if}
-							</div>
+							{/if}
 						</div>
 					</section>
 				</div>
@@ -279,7 +281,7 @@
 		</div>
 
 		<div class="flex flex-col w-full gap-6">
-			{#if request.options && request.options.length > 0}
+			{#if request?.options && request.options.length > 0}
 				<div class="card preset-tonal-secondary p-4 flex flex-col gap-4">
 					<header class="card-header text-primary-500 h3 font-bold">Options</header>
 					<section class="text-lg">
