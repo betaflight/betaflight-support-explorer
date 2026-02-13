@@ -69,11 +69,10 @@ const allSettings = {
 }
 
 export const settings = persisted("settings", allSettings)
-
 settings.update((s) => {
 	if (!s.version || s.version < 2) {
 		s.idPreviewCardSettings.push({
-			title: "Local",
+			title: "Local Build Warning",
 			name: "isLocal",
 			value: true
 		})
