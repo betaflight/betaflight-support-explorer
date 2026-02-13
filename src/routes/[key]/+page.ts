@@ -149,7 +149,9 @@ export const load = (async ({ params, fetch }) => {
 			build = build || {}
 			build.request = {
 				release: extractRelease(supportText),
-				target: build.config.target
+				target: build.config.target,
+				tag: null,
+				options: []
 			}
 		}
 
