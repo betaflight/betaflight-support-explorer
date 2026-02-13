@@ -363,3 +363,27 @@ export function extractNonSetCliLine(data: string, prefix: string): string | nul
 
 	return match ? match[1].trim() : null
 }
+
+export function extractMcu(data: string): string | null {
+	// Match "MCU: <value>" in the # status section
+	const match = data.match(/MCU:\s*([^\s]+)/)
+	return match ? match[1] : null
+}
+
+export function extractTarget(data: string): string | null {
+	// Match "board_name <value>" in the # dump master section
+	const match = data.match(/board_name\s+([^\s]+)/)
+	return match ? match[1] : null
+}
+
+export function extractManufacturerId(data: string): string | null {
+	// Match "manufacturer_id: <value>" in the # status section
+	const match = data.match(/manufacturer_id:\s*([^\s,]+)/)
+	return match ? match[1] : null
+}
+
+export function extractRelease(data: string): string | null {
+	// Match "# Betaflight / <value>" in the # version section
+	const match = data.match(/# Betaflight \/ [^\s]+\s+\((?:[^\)]+)\)\s+([^\s]+)/)
+	return match ? match[1] : null
+}

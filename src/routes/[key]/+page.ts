@@ -9,7 +9,11 @@ import {
 	extractSerial,
 	extractModes,
 	extractCliLine,
-	extractNonSetCliLine
+	extractNonSetCliLine,
+	extractManufacturerId,
+	extractTarget,
+	extractMcu,
+	extractRelease
 } from "$lib/extract"
 import { detectProblems } from "$lib/problemDetector"
 import { SemVer } from "semver"
@@ -43,6 +47,7 @@ function addPreviousId(
 	currentId: string,
 	config: BuildConfig | undefined,
 	request: BuildRequest | undefined,
+	isLocal: boolean | undefined,
 	problem: string | null,
 	ArmingDisableFlags: string[]
 ) {
@@ -65,7 +70,8 @@ function addPreviousId(
 				version: request.release,
 				problemDescription: problem ?? "",
 				options: request.options,
-				armDisableFlags: ArmingDisableFlags
+				armDisableFlags: ArmingDisableFlags,
+				isLocal: isLocal
 			}
 		])
 	}
@@ -126,6 +132,26 @@ export const load = (async ({ params, fetch }) => {
 		const timer = extractTimer(supportText)
 		const serial = extractSerial(supportText)
 		const modes = extractModes(supportText)
+
+		// Experimentally extract some build info from CLI
+		// This is only needed for support IDs without a cloud build
+		if (!build?.config) {
+			build = build || {}
+			build.config = {
+				target: extractTarget(supportText),
+				manufacturer: extractManufacturerId(supportText),
+				mcu: extractMcu(supportText)
+			}
+			build.isLocal = true
+		}
+
+		if (!build?.request) {
+			build = build || {}
+			build.request = {
+				release: extractRelease(supportText),
+				target: build.config.target
+			}
+		}
 
 		const commonSettings = {
 			Denominations: {
@@ -222,6 +248,7 @@ export const load = (async ({ params, fetch }) => {
 				key,
 				build.config,
 				build.request,
+				build.isLocal ?? false,
 				problem,
 				(status?.["Arming disable flags"] as string)?.split(" ") ?? []
 			)
@@ -251,9 +278,10 @@ export const load = (async ({ params, fetch }) => {
 			)
 		}
 
-		const description = build?.config
-			? `Firmware: ${build.config.manufacturer}/${build.config.target} \n Release: ${build.request.release} \n Tag: ${build.request.tag} \n Status: ${build.status} \n Submitted: ${formatTime(build.submitted)} \n Elapsed: ${build.elapsed}ms \n \n Options: ${build.request.options.join(", ")}`
-			: "Betaflight Support Explorer - Analyze Betaflight support data and cloud builds"
+		const description =
+			build?.config && !build?.isLocal
+				? `Firmware: ${build.config.manufacturer}/${build.config.target} \n Release: ${build.request.release} \n Tag: ${build.request.tag} \n Status: ${build.status} \n Submitted: ${formatTime(build.submitted)} \n Elapsed: ${build.elapsed}ms \n \n Options: ${build.request.options.join(", ")}`
+				: "Betaflight Support Explorer - Analyze Betaflight support data and cloud builds"
 
 		return {
 			build,
@@ -281,9 +309,10 @@ export const load = (async ({ params, fetch }) => {
 		)
 	}
 
-	const description = build?.config
-		? `Firmware: ${build.config.manufacturer}/${build.config.target} \n Release: ${build.request.release} \n Tag: ${build.request.tag} \n Status: ${build.status} \n Submitted: ${formatTime(build.submitted)} \n Elapsed: ${build.elapsed}ms \n \n Options: ${build.request.options.join(", ")}`
-		: "Betaflight Support Explorer - Analyze Betaflight support data and cloud builds"
+	const description =
+		build?.config && !build?.isLocal
+			? `Firmware: ${build.config.manufacturer}/${build.config.target} \n Release: ${build.request.release} \n Tag: ${build.request.tag} \n Status: ${build.status} \n Submitted: ${formatTime(build.submitted)} \n Elapsed: ${build.elapsed}ms \n \n Options: ${build.request.options.join(", ")}`
+			: "Betaflight Support Explorer - Analyze Betaflight support data and cloud builds"
 
 	return { build, detectedProblems: [], description }
 }) satisfies PageLoad

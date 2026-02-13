@@ -90,7 +90,7 @@
 	class="flex flex-col h-full max-w-screen md:p-16 md:pt-8 lg:p-4 p-2 pb-6 2xl:px-40 gap-6 relative"
 	in:fly={{ x: 500, duration: 400 }}
 >
-	{#if !build}
+	{#if build.isLocal}
 		<div class="card preset-tonal-warning p-4">
 			<div class="flex items-center gap-2">
 				<Icon src={TriangleAlert} size="1.2rem" class="text-warning-500" />
@@ -120,26 +120,28 @@
 									>{config.target}
 								</div>
 								<div class="flex gap-2">
-									<a
-										href={`/targets/${config.target}`}
-										class="btn preset-filled-primary-500 btn-sm"
-										data-sveltekit-preload-data="hover"
-										data-sveltekit-preload-code="eager"
-									>
-										<span><Icon src={FileScan} size="1rem" /></span>
-										<span>View Target</span>
-									</a>
-									<a
-										href={`https://github.com/betaflight/config/blob/master/configs/${config.target}/config.h`}
-										class="btn preset-filled-primary-500 btn-sm"
-									>
-										<span><Icon src={Github} size="1rem" /></span>
-										<span>Open Target</span>
-									</a>
-									<!-- <a href="/" target="_blank" class="btn variant-filled-primary btn-sm">
-									<span><Icon src={BookOpen} size="1rem" /></span>
-									<span>Wiki</span>
-								</a> -->
+									{#if !build.isLocal}
+										<a
+											href={`/targets/${config.target}`}
+											class="btn preset-filled-primary-500 btn-sm"
+											data-sveltekit-preload-data="hover"
+											data-sveltekit-preload-code="eager"
+										>
+											<span><Icon src={FileScan} size="1rem" /></span>
+											<span>View Target</span>
+										</a>
+										<a
+											href={`https://github.com/betaflight/config/blob/master/configs/${config.target}/config.h`}
+											class="btn preset-filled-primary-500 btn-sm"
+										>
+											<span><Icon src={Github} size="1rem" /></span>
+											<span>Open Target</span>
+										</a>
+										<!-- <a href="/" target="_blank" class="btn variant-filled-primary btn-sm">
+											<span><Icon src={BookOpen} size="1rem" /></span>
+											<span>Wiki</span>
+										</a> -->
+									{/if}
 								</div>
 							</div>
 							<hr class="hr border-surface-500 my-4 border-t-2" />
@@ -149,26 +151,30 @@
 										<span class="text-neutral-400 mr-1 text-base">Release:</span>
 										<span class="text-base">{request.release}</span>
 									</div>
-									<div class="flex flex-row">
-										<span class="text-neutral-400 mr-1 text-base">Tag:</span>
-										<span class="text-base">{request.tag}</span>
-									</div>
+									{#if request.tag}
+										<div class="flex flex-row">
+											<span class="text-neutral-400 mr-1 text-base">Tag:</span>
+											<span class="text-base">{request.tag}</span>
+										</div>
+									{/if}
 								</div>
-								<a
-									href="https://github.com/betaflight/betaflight/releases/tag/{request.release}"
-									target="_blank"
-									class="btn preset-filled-secondary-500 btn-sm"
-								>
-									<span><Icon src={BookOpen} size="1rem" /></span>
-									<span>Changelog</span>
-								</a>
+								{#if !build.isLocal}
+									<a
+										href="https://github.com/betaflight/betaflight/releases/tag/{request.release}"
+										target="_blank"
+										class="btn preset-filled-secondary-500 btn-sm"
+									>
+										<span><Icon src={BookOpen} size="1rem" /></span>
+										<span>Changelog</span>
+									</a>
+								{/if}
 							</div>
 						</div>
 					</section>
 				</div>
 			{/if}
 
-			{#if build}
+			{#if build.submitted && build.elapsed && build.status}
 				<div class="card preset-tonal-secondary p-4 flex flex-col gap-4">
 					<header class="card-header text-primary-500 h3 font-bold">Build</header>
 					<section class="text-lg">
@@ -273,7 +279,7 @@
 		</div>
 
 		<div class="flex flex-col w-full gap-6">
-			{#if request}
+			{#if request.options && request.options.length > 0}
 				<div class="card preset-tonal-secondary p-4 flex flex-col gap-4">
 					<header class="card-header text-primary-500 h3 font-bold">Options</header>
 					<section class="text-lg">
