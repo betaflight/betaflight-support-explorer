@@ -6,6 +6,7 @@ import {
 	extractDump,
 	extractDma,
 	extractTimer,
+	extractOptions,
 	extractSerial,
 	extractModes,
 	extractCliLine,
@@ -147,11 +148,18 @@ export const load = (async ({ params, fetch }) => {
 
 		if (!build?.request) {
 			build = build || {}
+			let options: string[] = []
+			const optionsForVersion = await fetch(`https://build.betaflight.com/api/options/${version}`)
+			if (optionsForVersion.ok) {
+				const optionsData = await optionsForVersion.json()
+				options = extractOptions(supportText, optionsData) ?? []
+			}
+
 			build.request = {
 				release: extractRelease(supportText),
 				target: build.config.target,
 				tag: null,
-				options: []
+				options
 			}
 		}
 

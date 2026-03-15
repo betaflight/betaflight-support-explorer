@@ -2,6 +2,21 @@ interface StatusObject {
 	[key: string]: string | number | boolean | null
 }
 
+type OptionMapping = {
+	name: string
+	value: string
+	default: boolean
+	key: number
+}
+
+type OptionMappings = {
+	radioProtocols?: OptionMapping[]
+	telemetryProtocols?: OptionMapping[]
+	generalOptions?: OptionMapping[]
+	motorProtocols?: OptionMapping[]
+	[key: string]: OptionMapping[] | undefined
+}
+
 export function extractStatus(data: string): StatusObject {
 	const statusSection = data.match(/# status([\s\S]*?)(?=#|$)/)
 	const statusLines = statusSection ? statusSection[1].trim().split("\n") : []
@@ -135,6 +150,37 @@ export function extractTimer(
 	} else {
 		return null
 	}
+}
+
+export function extractOptions(data: string, mappings: OptionMappings): string[] | null {
+	const match = data.match(/# options([\s\S]*?)(?=\n#|$)/)
+
+	if (!match) {
+		return null
+	}
+
+	const optionKeys = match[1]
+		.trim()
+		.split("\n")
+		.map((line) => line.trim())
+		.filter((line) => /^\d+$/.test(line))
+		.map((line) => Number(line))
+
+	if (optionKeys.length === 0) {
+		return null
+	}
+
+	const mappingByKey = new Map(
+		Object.values(mappings)
+			.flatMap((category) => category ?? [])
+			.map((option) => [option.key, option.value] as const)
+	)
+
+	const options = optionKeys
+		.map((key) => mappingByKey.get(key))
+		.filter((value): value is string => Boolean(value))
+
+	return options.length > 0 ? options : null
 }
 
 export function extractSerial(data: string):
