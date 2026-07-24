@@ -17,6 +17,7 @@ jobs:
         with:
           ref: ${{ inputs.commit_ref }}
           persist-credentials: false
+          allow-unsafe-pr-checkout: true
 
       - name: Install node.js
         uses: actions/setup-node@v5
