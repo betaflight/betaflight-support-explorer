@@ -21,14 +21,16 @@ export const load: PageLoad = async ({ params, fetch }) => {
 		throw error(404, "This target only has legacy unified configs and no config.h file")
 	}
 
-	const response = await fetch(`/api/target/${target}`)
+	const manufacturerId = cloudBuildTarget.manufacturer
+	const response = await fetch(
+		`/api/target/${encodeURIComponent(target)}?manufacturer=${encodeURIComponent(manufacturerId)}`
+	)
 	const config = await response.json()
 
 	if (!response.ok) {
 		throw error(response.status, config.error || "Failed to fetch target config")
 	}
 
-	const manufacturerId = config.content.match(/MANUFACTURER_ID\s+(\w+)/)?.[1] ?? "UNKNOWN"
 	const manufacturerResponse = await fetch(
 		`https://build.betaflight.com/api/manufacturers/${manufacturerId}`
 	)
