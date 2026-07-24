@@ -7,12 +7,35 @@ export type ConfigDefineEntry = {
 
 export function extractConfigDefines(source: string): ConfigDefineEntry[] {
 	const out: ConfigDefineEntry[] = []
+	let inBlockComment = false
 
 	for (const line of source.split(/\r?\n/)) {
-		const trimmed = line.trim()
-		if (trimmed.startsWith("*") || trimmed.startsWith("*/")) continue
+		let activeCode = ""
+		let i = 0
 
-		const m = line.match(/^\s*(?:(?:\/\/)\s*)?#define\s+([A-Za-z_]\w*)(?:\s+(.*))?$/u)
+		while (i < line.length) {
+			if (inBlockComment) {
+				const end = line.indexOf("*/", i)
+				if (end === -1) break
+				inBlockComment = false
+				i = end + 2
+			} else {
+				const start = line.indexOf("/*", i)
+				if (start === -1) {
+					activeCode += line.slice(i)
+					break
+				}
+				activeCode += line.slice(i, start)
+				const end = line.indexOf("*/", start + 2)
+				if (end === -1) {
+					inBlockComment = true
+					break
+				}
+				i = end + 2
+			}
+		}
+
+		const m = activeCode.match(/^\s*(?:(?:\/\/)\s*)?#define\s+([A-Za-z_]\w*)(?:\s+(.*))?$/u)
 		if (!m) continue
 
 		let valuePart = (m[2] ?? "").trim()

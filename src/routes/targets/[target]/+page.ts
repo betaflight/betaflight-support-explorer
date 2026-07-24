@@ -40,6 +40,10 @@ export const load: PageLoad = async ({ params, fetch }) => {
 		manufacturer = await manufacturerResponse.json()
 	}
 
+	if (!config || typeof config.content !== "string") {
+		throw error(500, "Target config content is missing or invalid")
+	}
+
 	const defines = extractConfigDefines(config.content)
 
 	const formattedDefines = {
