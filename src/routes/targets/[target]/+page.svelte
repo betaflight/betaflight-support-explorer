@@ -52,10 +52,7 @@
 				<span class="w-fit text-surface-300 -ml-1">{manufacturer.name}</span>
 			{/if}
 		</div>
-		<a
-			href={`https://github.com/betaflight/config/blob/master/configs/${targetName}/config.h`}
-			class="btn preset-filled-primary-500"
-		>
+		<a href={target.url} class="btn preset-filled-primary-500">
 			Open in GitHub
 			<Icon src={Github} size="1.5rem" />
 		</a>

@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { Icon } from "@steeze-ui/svelte-icon"
 	import { Github, Check } from "@steeze-ui/lucide-icons"
-	import { Dialog, Tooltip } from "bits-ui"
+	import { Tooltip } from "bits-ui"
 	import type { CBTarget } from "$lib/cloudBuildTypes"
 
 	interface Props {
@@ -45,7 +45,7 @@
 	</div>
 	<div class="flex shrink-0">
 		<a
-			href={`https://github.com/betaflight/config/blob/master/configs/${target.target}/config.h`}
+			href={`https://github.com/betaflight/config/blob/master/configs/${target.manufacturerId}/${target.target}/config.h`}
 			target="_blank"
 			rel="noopener noreferrer"
 			class="hover:text-primary-500 w-fit h-fit bg-transparent hover:bg-primary-500/10 aspect-square p-1 rounded-lg"

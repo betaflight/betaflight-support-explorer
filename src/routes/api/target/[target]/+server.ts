@@ -5,11 +5,16 @@ import type { RequestHandler } from "./$types"
 
 const octokit = new Octokit(env.GITHUB_PAT ? { auth: env.GITHUB_PAT } : {})
 
-export const GET: RequestHandler = async ({ params }) => {
+export const GET: RequestHandler = async ({ params, url }) => {
 	const { target } = params
+	const manufacturer = url.searchParams.get("manufacturer")
 
 	if (!target) {
 		return json({ error: "Target parameter is required" }, { status: 400 })
+	}
+
+	if (!manufacturer) {
+		return json({ error: "Manufacturer parameter is required" }, { status: 400 })
 	}
 
 	try {
@@ -19,7 +24,7 @@ export const GET: RequestHandler = async ({ params }) => {
 			{
 				owner: "betaflight",
 				repo: "config",
-				path: `configs/${target}/config.h`
+				path: `configs/${manufacturer}/${target}/config.h`
 			}
 		)
 
@@ -36,16 +41,17 @@ export const GET: RequestHandler = async ({ params }) => {
 
 		return json({
 			target,
+			manufacturer,
 			content,
 			url: configFile.html_url,
 			sha: configFile.sha,
 			size: configFile.size
 		})
-	} catch (error: any) {
+	} catch (error: unknown) {
 		console.error(`Error fetching config for target ${target}:`, error)
 
 		// Check if it's a 404 error (target not found)
-		if (error.status === 404) {
+		if (typeof error === "object" && error !== null && "status" in error && error.status === 404) {
 			return json({ error: `Target "${target}" not found` }, { status: 404 })
 		}
 

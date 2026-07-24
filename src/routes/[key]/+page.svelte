@@ -131,7 +131,7 @@
 											<span>View Target</span>
 										</a>
 										<a
-											href={`https://github.com/betaflight/config/blob/master/configs/${config.target}/config.h`}
+											href={`https://github.com/betaflight/config/blob/master/configs/${config.manufacturer}/${config.target}/config.h`}
 											class="btn preset-filled-primary-500 btn-sm"
 										>
 											<span><Icon src={Github} size="1rem" /></span>
